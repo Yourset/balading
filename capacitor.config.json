@@ -1,0 +1,13 @@
+{
+  "appId": "com.balading.app",
+  "appName": "巴拉丁",
+  "webDir": "web/dist",
+  "_comment": "APK 壳直接加载正式 HTTPS 前端；服务器 API 默认同源，后续前端可热更新。",
+  "server": {
+    "url": "https://m.example.com",
+    "cleartext": false
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}

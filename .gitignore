@@ -1,0 +1,56 @@
+# 依赖与构建产物
+node_modules/
+web/node_modules/
+web/dist/
+build/
+
+# android 工程：只忽略构建产物，源码入库（云端 GitHub Actions 打包需要）
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+android/captures/
+android/capacitor-cordova-android-plugins/build/
+
+# 敏感文件（签名密钥 / 一次性令牌）
+server/.secret
+server/tokens.json
+server/notification-state.json
+server/notification-state.json.tmp
+android/app/release-signing.p12
+
+# 运行时产生的本机数据（含会话/用量/报错，绝不入库）
+server/client-errors.jsonl
+server/speech-usage.json
+server/resume/
+release-output/
+
+# 发布扫描的本地私有规则（含你自己环境的真实 IP / 别名 / 密钥前缀）
+scripts/.publish-secrets.local
+
+# 本地环境配置（含各自主电脑的工作目录）
+.env
+.env.local
+web/.env
+web/.env.local
+
+# 本地临时文件
+.tmp-*
+*.log
+*.bak
+dist.bak-*
+dist-apk/
+
+# 系统
+.DS_Store
+Thumbs.db
+# 本地证据 / 工具链 / Capacitor sync 产物（公开仓库绝不包含）
+evidence/
+build-tools/
+android/app/src/main/assets/
+*.p12
+*.jks
+*.keystore
+# 本地私人工具（含本机路径与 SSH 别名，不进仓库）
+tools/note-sync.mjs

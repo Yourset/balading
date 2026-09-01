@@ -1,0 +1,78 @@
+apply plugin: 'com.android.application'
+
+// 以 20 亿为基数叠加 UTC epoch 分钟：每分钟递增，且约 280 年内不超过 Android Int 上限。
+def versionClock = new Date()
+def defaultVersionCode = (2_000_000_000L + Math.floorDiv(versionClock.time, 60_000L)).toString()
+def defaultVersionName = "1.2." + versionClock.format("yyyyMMdd.HHmm", TimeZone.getTimeZone("UTC"))
+def ciVersionCode = (System.getenv("ANDROID_VERSION_CODE") ?: defaultVersionCode).toInteger()
+def ciVersionName = System.getenv("ANDROID_VERSION_NAME") ?: defaultVersionName
+
+android {
+    namespace "com.balading.app"
+    compileSdk rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId "com.balading.app"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode ciVersionCode
+        versionName ciVersionName
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        aaptOptions {
+             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
+             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
+            ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+    signingConfigs {
+        release {
+            def signingPath = System.getenv("ANDROID_SIGNING_STORE_FILE")
+            if (signingPath) {
+                storeFile file(signingPath)
+                storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("ANDROID_KEY_ALIAS")
+                keyPassword System.getenv("ANDROID_KEY_PASSWORD")
+                storeType "PKCS12"
+            }
+        }
+    }
+    buildTypes {
+        release {
+            // 只有真正提供了 keystore 才启用签名配置；
+            // 否则（例如 fork 后没配 secrets）产出未签名 APK，构建照样通过。
+            if (System.getenv("ANDROID_SIGNING_STORE_FILE")) {
+                signingConfig signingConfigs.release
+            }
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+repositories {
+    flatDir{
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+    implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+    implementation project(':capacitor-android')
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation project(':capacitor-cordova-android-plugins')
+}
+
+apply from: 'capacitor.build.gradle'
+
+try {
+    def servicesJSON = file('google-services.json')
+    if (servicesJSON.text) {
+        apply plugin: 'com.google.gms.google-services'
+    }
+} catch(Exception e) {
+    logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}

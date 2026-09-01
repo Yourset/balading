@@ -1,0 +1,18 @@
+[Unit]
+Description=dsh-mobile authentication gateway for DSH mobile web
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/dsh-mobile/server
+Environment=DSH_TARGET=http://127.0.0.1:7080
+Environment=MOBILE_PORT=8788
+Environment=MOBILE_HOST=127.0.0.1
+# 部署时生成强随机密钥并替换：openssl rand -base64 32（不要使用占位值 CHANGE_ME）
+Environment=MOBILE_SIGNING_SECRET=CHANGE_ME
+ExecStart=/usr/bin/node /opt/dsh-mobile/server/index.mjs
+Restart=always
+RestartSec=3
+User=root
+
+[Install]
+WantedBy=multi-user.target

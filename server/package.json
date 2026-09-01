@@ -1,0 +1,17 @@
+{
+  "name": "dsh-mobile-gateway",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node index.mjs",
+    "test": "node --test *.test.mjs"
+  },
+  "engines": {
+    "node": ">=18.19"
+  },
+  "dependencies": {
+    "qrcode": "^1.5.4",
+    "ws": "^8.21.0"
+  }
+}
